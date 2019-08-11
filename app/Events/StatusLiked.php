@@ -27,6 +27,7 @@ class StatusLiked implements ShouldBroadcast
     {
         $this->username = $username;
         $this->message  = "{$username} liked your status";
+//        dd($this->message);
     }
 
     /**
@@ -37,5 +38,11 @@ class StatusLiked implements ShouldBroadcast
     public function broadcastOn()
     {
         return ['status-liked'];
+    }
+
+    // make alias for event name
+    public function broadcastAs()
+    {
+        return 'StatusLiked';
     }
 }

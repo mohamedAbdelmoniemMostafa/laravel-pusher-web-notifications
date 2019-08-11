@@ -62,6 +62,7 @@
       var notificationsToggle    = notificationsWrapper.find('a[data-toggle]');
       var notificationsCountElem = notificationsToggle.find('i[data-count]');
       var notificationsCount     = parseInt(notificationsCountElem.data('count'));
+      localStorage.setItem('count',notificationsCount);
       var notifications          = notificationsWrapper.find('ul.dropdown-menu');
 
       if (notificationsCount <= 0) {
@@ -69,17 +70,19 @@
       }
 
       // Enable pusher logging - don't include this in production
-      // Pusher.logToConsole = true;
+      Pusher.logToConsole = true;
 
-      var pusher = new Pusher('PUSHER_API_KEY', {
-        encrypted: true
+      var pusher = new Pusher("PUSHER_API_KEY", {
+          encrypted: true,
+          cluster:'PUSHER_Cluster',
       });
 
       // Subscribe to the channel we specified in our Laravel Event
       var channel = pusher.subscribe('status-liked');
 
       // Bind a function to a Event (the full Laravel class)
-      channel.bind('App\\Events\\StatusLiked', function(data) {
+      channel.bind('StatusLiked', function(data) {
+          // console.log(data);
         var existingNotifications = notifications.html();
         var avatar = Math.floor(Math.random() * (71 - 20 + 1)) + 20;
         var newNotificationHtml = `
@@ -101,7 +104,8 @@
           </li>
         `;
         notifications.html(newNotificationHtml + existingNotifications);
-        notificationsCount += 1;
+        notificationsCount = parseInt(localStorage.getItem('count')) + 1;
+        localStorage.setItem('count',notificationsCount);
         notificationsCountElem.attr('data-count', notificationsCount);
         notificationsWrapper.find('.notif-count').text(notificationsCount);
         notificationsWrapper.show();
